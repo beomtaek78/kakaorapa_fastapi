@@ -1,29 +1,38 @@
-from fastapi import APIRouter, Path, HTTPException, status
+from fastapi import APIRouter, Path, HTTPException, status, Request, Depends
+from fastapi.templating import Jinja2Templates
 from model import Beomtaek, BeomtaekItem, BeomtaekItems
 
 beomtaek_router = APIRouter()
 beomtaek_list = []
 
-@beomtaek_router.post("/beomtaek", status_code=201)
-async def add_beomtaek(beomtaek: Beomtaek) -> dict:
+templates = Jinja2Templates(directory="templates/")
+
+@beomtaek_router.post("/beomtaek")
+async def add_beomtaek(request: Request, beomtaek: Beomtaek = Depends(Beomtaek.as_form)):
+    beomtaek.id = len(beomtaek_list) + 1
     beomtaek_list.append(beomtaek)
-    return {
-            "message": "beomtaek added successfully"
-    }
+    return templates.TemplateResponse("beomtaek.html",
+    {
+        "request": request,
+        "beomtaeks": beomtaek_list
+    })
 
 @beomtaek_router.get("/beomtaek", response_model=BeomtaekItems)
-async def retrieve_beomtaeks() -> dict:
-    return {
-            "beomtaeks": beomtaek_list
-    }
+async def retrieve_beomtaeks(request: Request):
+    return templates.TemplateResponse("beomtaek.html", {
+        "request": request,
+        "beomtaeks": beomtaek_list
+    })
 
 @beomtaek_router.get("/beomtaek/{beomtaek_id}")
-async def get_single_beomtaek(beomtaek_id: int = Path(..., title="The ID of the beomtaek to retrieve.")) -> dict:
+async def get_single_beomtaek(request: Request, beomtaek_id: int = Path(..., title="The ID of the beomtaek to retrieve.")) -> dict:
     for beomtaek in beomtaek_list:
         if beomtaek.id == beomtaek_id:
-            return {
+            return templates.TemplateResponse(
+                    "beomtaek.html", {
+                    "request": request,
                     "beomtaek": beomtaek
-            }
+            })
     raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Beomtaek with supplied ID doesn't exist",

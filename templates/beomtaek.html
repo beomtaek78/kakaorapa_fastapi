@@ -1,0 +1,47 @@
+{% extends "home.html" %}
+
+{% block beomtaek_container %}
+<main class="container">
+    <hr>
+    <section class="container-fluid">
+        <form method="post">
+            <div class="col-auto">
+                <div class="input-group mb-3">
+                    <input aria-describedby="button-addon2" aria-label="Add a beomtaek" class="form-control" name="item"
+                           placeholder="아이템을 등록하세요" type="text"
+                           value="{{ item }}"/>
+                    <button class="btn btn-outline-primary" data-mdb-ripple-color="dark" id="button-addon2"
+                            type="submit">
+                        Add Beomtaek
+                    </button>
+                </div>
+            </div>
+        </form>
+    </section>
+    {% if beomtaek %}
+    <article class="card container-fluid">
+        <br/>
+        <h4>Beomtaek ID: {{ beomtaek.id }} </h4>
+        <p>
+            <strong>
+                Item: {{ beomtaek.item }}
+            </strong>
+        </p>
+    </article>
+    {% else %}
+    <section class="container-fluid">
+        <h2 align="center">Beomtaeks</h2>
+        <br>
+        <div class="card">
+            <ul class="list-group list-group-flush">
+                {% for beomtaek in beomtaeks %}
+                <li class="list-group-item">
+                    {{ loop.index }}. <a href="/beomtaek/{{ loop.index }}"> {{ beomtaek.item }} </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}
